@@ -58,7 +58,6 @@ const App: FC<{ folders?: any[]; activeFolder?: any; activeDoc?: any; activeDocs
       <Pane width={300} position="absolute" top={0} left={0} background="tint2" height="100vh" borderRight>
         <Pane padding={majorScale(2)} display="flex" alignItems="center" justifyContent="space-between">
           <Logo />
-
           <NewFolderButton onClick={() => setIsShown(true)} />
         </Pane>
         <Pane>
