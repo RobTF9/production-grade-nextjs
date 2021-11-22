@@ -96,7 +96,7 @@ export async function getServerSideProps(ctx) {
     props.activeDocs = await doc.getDocsByFolder(db, props.activeFolder._id)
 
     if (ctx.params.id.length > 1) {
-      props.activeDoc = props.activeDocs.find(({ _id }) => _id === ctx.params.id[2])
+      props.activeDoc = props.activeDocs.find(({ _id }) => _id === ctx.params.id[1])
     }
   }
 
