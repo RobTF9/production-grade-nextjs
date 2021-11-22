@@ -9,24 +9,31 @@ interface Doc {
 }
 
 export const getOneDoc = async (db: Db, id: string) => {
-  return await db.collection('docs').findOne({ _id: id })
+  return db.collection('docs').findOne({ _id: id })
 }
 
 export const getDocsByFolder = async (db: Db, folderId: string) => {
-  return await db.collection('docs').find({ folder: folderId }).toArray()
+  return db.collection('docs').find({ folder: folderId }).toArray()
 }
 
 export const createDoc = async (db: Db, doc: Doc) => {
-  const newDoc = await db.collection('docs').insertOne({
-    _id: nanoid(),
-    ...doc,
-    createdAt: new Date().toDateString(),
-  })
-  return newDoc
+  return db
+    .collection('docs')
+    .insertOne({
+      _id: nanoid(12),
+      ...doc,
+      createdAt: new Date().toDateString(),
+    })
+    .then(({ ops }) => ops[0])
 }
 
 export const updateOne = async (db: Db, id: string, updates: Partial<Doc>) => {
-  await db.collection('docs').updateOne({ _id: id }, { $set: updates })
-  const doc = await db.collection('docs').findOne({ _id: id })
-  return doc
+  const operation = await db.collection('docs').updateOne({ _id: id }, { $set: updates })
+
+  if (!operation.result.ok) {
+    throw new Error('Could not update document')
+  }
+
+  const updated = await db.collection('docs').findOne({ _id: id })
+  return updated
 }

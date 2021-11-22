@@ -1,5 +1,5 @@
 import { Db, MongoClient } from 'mongodb'
-import { NextApiRequest, NextApiResponse } from 'next'
+import { NextApiRequest } from 'next'
 
 export interface PostFrontMatter {
   title: string

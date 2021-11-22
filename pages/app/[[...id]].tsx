@@ -9,6 +9,7 @@ import FolderPane from '../../components/folderPane'
 import DocPane from '../../components/docPane'
 import NewFolderDialog from '../../components/newFolderDialog'
 import { getSession, useSession } from 'next-auth/client'
+import { folder, doc, connectToDB } from '../../db'
 
 const App: FC<{ folders?: any[]; activeFolder?: any; activeDoc?: any; activeDocs?: any[] }> = ({
   folders,
@@ -61,7 +62,7 @@ const App: FC<{ folders?: any[]; activeFolder?: any; activeDoc?: any; activeDocs
           <NewFolderButton onClick={() => setIsShown(true)} />
         </Pane>
         <Pane>
-          <FolderList folders={['hello']} />{' '}
+          <FolderList folders={folders ? folders : []} />{' '}
         </Pane>
       </Pane>
       <Pane marginLeft={300} width="calc(100vw - 300px)" height="100vh" overflowY="auto" position="relative">
@@ -80,18 +81,26 @@ App.defaultProps = {
 export async function getServerSideProps(ctx) {
   const session = await getSession(ctx)
 
-  return { props: { session } }
+  if (!session) {
+    return {
+      props: { session },
+    }
+  }
+
+  const { db } = await connectToDB()
+  const folders = await folder.getFolders(db, session.user.id)
+  const props: any = { session, folders }
+
+  if (ctx.params.id) {
+    props.activeFolder = folders.find(({ _id }) => _id === ctx.params.id[0])
+    props.activeDocs = await doc.getDocsByFolder(db, props.activeFolder._id)
+
+    if (ctx.params.id.length > 1) {
+      props.activeDoc = props.activeDocs.find(({ _id }) => _id === ctx.params.id[2])
+    }
+  }
+
+  return { props }
 }
 
-/**
- * Catch all handler. Must handle all different page
- * states.
- * 1. Folders - none selected
- * 2. Folders => Folder selected
- * 3. Folders => Folder selected => Document selected
- *
- * An unauth user should not be able to access this page.
- *
- * @param context
- */
 export default App
