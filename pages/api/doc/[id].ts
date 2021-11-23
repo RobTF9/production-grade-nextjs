@@ -8,7 +8,7 @@ const handler = nc({ onError })
 
 handler.use(middleware)
 handler.put(async (req: Request, res) => {
-  const newDoc = await doc.updateOne(req.db, req.query.id as string, res.body)
+  const newDoc = await doc.updateOne(req.db, req.query.id as string, req.body)
   res.send({ data: newDoc })
 })
 
